@@ -1,0 +1,195 @@
+<script src="//cdn.jsdelivr.net/npm/phaser@3.11.0/dist/phaser.min.js"></script>
+
+<div id="app">
+	<h2>Kill the bugs</h2>
+	<div id="instructions">
+		<b>Instructions</b><br>
+		<ul>
+			<li>Kill a bug by clicking on it</li>
+			<li>On every step, the bug respans and moves both to its adjacent box</li>
+			<li>Your aim is to kill all the bugs in minimun steps</li>
+			<li></li>
+			<li></li>
+			<li></li>
+		</ul>
+	</div>
+	<div class="box" id="1">
+		<div class="right"></div>
+	</div>
+	<div class="box" id="2">
+		<div class="left"></div>
+		<div class="right"></div>
+	</div>
+	<div class="box" id="3">
+		<div class="left"></div>
+		<div class="right"></div>
+	</div>
+	<div class="box" id="4">
+		<div class="left"></div>
+		<div class="right"></div>
+	</div>
+	<div class="box" id="5">
+		<div class="left"></div>
+	</div>
+
+	<div style="clear: both;"></div>
+	<div id="stepsDiv">
+		Steps taken: <span id="steps">0</span> |
+		Top Score: 6 steps
+	</div>
+	<button id="restartBtn" onclick="restart();">Restart</button>
+</div>
+
+
+
+<style type="text/css">
+	body{
+		background-color: #aaa;
+	}
+
+	#instructions{
+		text-align: justify;
+		padding: 0 60px;
+	}
+
+	#app{
+		width: 800px;
+		margin: 200px auto;
+		background-color: #fff;
+		text-align: center;
+		padding: 60px 0;
+
+	}
+
+	#restartBtn{
+		padding: 4px;
+		margin: 10px;
+	}
+
+	#stepsDiv{
+		margin: 16px;
+	}
+	.box{
+		border: 1px solid #333;
+		margin: 10px;
+		width: 80px;
+		height: 80px;
+		display: inline-block;
+		cursor: pointer;
+	}
+
+	.left, .right{
+		width: 80px;
+		height: 80px;
+		background-image: url("bug.jpeg");
+		background-position: center; /* Center the image */
+		background-repeat: no-repeat; /* Do not repeat the image */
+
+		z-index: 1;
+		position: absolute;
+	}
+
+	.right{
+		z-index:2;
+	}
+
+	.pressed{
+		background-color: #880000;
+		background-image: url("squashed.png");
+		background-position: center; /* Center the image */
+		background-repeat: no-repeat; /* Do not repeat the image */
+		background-size: cover;
+	}
+</style>
+
+<script   src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+<script type="text/javascript">
+	var steps = 0;
+	var currIds = [1,2,3,4,5];
+	var play = true;
+	var delay = 800;
+	for(var i=0;i<currIds.length;i++){
+		var box = currIds[i];
+		$("#"+box).addClass("selected");
+	}
+	
+
+	$('.box').click(function() {
+		if(!play) return;
+		play = false;
+		steps++;
+		$("#steps").text(steps);
+		var boxid = parseInt($(this).attr('id'));
+		if(currIds.indexOf(boxid) > -1) $("#"+boxid).addClass("pressed");
+		$("#"+boxid).html("");
+		console.log("Handler for .click() called: "+boxid);
+
+		console.log(currIds);
+		var index = currIds.indexOf(boxid);
+ 		if (index > -1) currIds.splice(index, 1);
+    	console.log(currIds);
+		
+    	var options = { duration: delay,  easing: 'linear'};
+
+		var newIds = [];
+		for(var i=0;i<currIds.length;i++){
+			var box = currIds[i];
+			if(box > 1){
+				$("#"+box+" > .left").animate({"margin-left": '-106px'}, options);
+				if(newIds.indexOf(box-1) == -1) newIds.push(box - 1);
+			} 
+			if(box < 5){
+				$("#"+box+" > .right").animate({"margin-left": '106px'}, options);
+				if(newIds.indexOf(box+1) == -1) newIds.push(box + 1);
+			} 
+		}
+		currIds = newIds;
+		console.log(newIds);
+
+		
+
+		setTimeout(function() { 
+			$(".box").removeClass("pressed");
+			buildApp();
+			play = true;
+
+			if(currIds.length == 0){
+				alert("Congrats.. You won");
+			}
+		}, delay);
+
+		
+	});	
+
+	function restart(){
+		steps = 0;
+		currIds = [1,2,3,4,5];
+		for(var i=0;i<currIds.length;i++){
+			var box = currIds[i];
+			$("#"+box).addClass("selected");
+		}
+		$("#steps").text(steps);
+		buildApp();
+	}
+
+	function buildApp(){
+		var left = '<div class="left"></div>';
+		var right = '<div class="right"></div>';
+		
+		if(currIds.indexOf(1) > -1) $("#1").html(right);
+		else $("#1").html("");
+
+		if(currIds.indexOf(2) > -1) $("#2").html(left+right);
+		else $("#2").html("");
+
+		if(currIds.indexOf(3) > -1) $("#3").html(left+right);
+		else $("#3").html("");
+
+		if(currIds.indexOf(4) > -1) $("#4").html(left+right);
+		else $("#4").html("");
+
+		if(currIds.indexOf(5) > -1) $("#5").html(left);
+		else $("#5").html("");
+	}
+</script>
+
